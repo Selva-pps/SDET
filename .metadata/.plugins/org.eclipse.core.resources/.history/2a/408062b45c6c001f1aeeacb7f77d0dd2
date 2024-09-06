@@ -1,0 +1,69 @@
+package Test.Gorest;
+import io.restassured.response.Response;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+//import pages.UserApiPage;
+
+
+public class UserApiTest {
+	private UserApiPage userApiPage;
+
+    public UserApiTest() {
+        userApiPage = new UserApiPage();
+    }
+
+    // Test for creating a valid user
+    @Test
+    public void tc01() {
+        String name = "selvam";
+        String gender = "male";
+        String email = "selvam@example.com"; 
+        String status = "active";
+
+        Response response = userApiPage.createNewUser(name, gender, email, status);
+        userApiPage.validateUserCreation(response, 201);  // 201: Created
+
+       
+    }
+
+    // Test for creating a user with invalid data (missing email)
+    @Test
+    public void tc02() {
+        String name = "Jane Doe";
+        String gender = "male";
+        String email = ""; // Invalid email
+        String status = "active";
+
+        Response response = userApiPage.createNewUser(name, gender, email, status);
+        userApiPage.validateUserCreation(response, 422);  // 422: Unprocessable Entity
+    }
+
+    // Test for edge case: invalid gender value
+    @Test
+    public void tc03() {
+        String name = "Sam Doe";
+        String gender = "male"; // Invalid gender
+        String email = "abcdeexample.com";
+        String status = "active";
+
+        Response response = userApiPage.createNewUser(name, gender, email, status);
+        userApiPage.validateUserCreation(response, 422);  // 422: Unprocessable Entity
+    }
+    
+    @Test
+    public void tc04() {
+        String name = "selva";
+        String gender = "male";
+        String email = "selva@example.com"; 
+        String status = "active";
+
+        Response response = userApiPage.createNewUser(name, gender, email, status);
+        userApiPage.validateUserCreation(response, 422); 
+
+        // Additional validations (if needed)
+        Assert.assertEquals(response.jsonPath().getString("data.name"), name);
+        Assert.assertEquals(response.jsonPath().getString("data.gender"), gender);
+    }
+
+
+}

@@ -1,0 +1,55 @@
+package Test.Gorest;
+import io.restassured.response.Response;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+import pages.UserApiPage;
+
+
+public class UserApiTest {
+	private UserApiPage userApiPage;
+
+    public UserApiTest() {
+        userApiPage = new UserApiPage();
+    }
+
+    // Test for creating a valid user
+    @Test
+    public void testCreateUserSuccess() {
+        String name = "John Doe";
+        String gender = "male";
+        String email = "john.doe+" + System.currentTimeMillis() + "@example.com"; // Unique email
+        String status = "active";
+
+        Response response = userApiPage.createNewUser(name, gender, email, status);
+        userApiPage.validateUserCreation(response, 201);  // 201: Created
+
+        // Additional validations (if needed)
+        Assert.assertEquals(response.jsonPath().getString("data.name"), name);
+        Assert.assertEquals(response.jsonPath().getString("data.gender"), gender);
+    }
+
+    // Test for creating a user with invalid data (missing email)
+    @Test
+    public void testCreateUserInvalidData() {
+        String name = "Jane Doe";
+        String gender = "female";
+        String email = ""; // Invalid email
+        String status = "active";
+
+        Response response = userApiPage.createNewUser(name, gender, email, status);
+        userApiPage.validateUserCreation(response, 422);  // 422: Unprocessable Entity
+    }
+
+    // Test for edge case: invalid gender value
+    @Test
+    public void testCreateUserInvalidGender() {
+        String name = "Sam Doe";
+        String gender = "unknown"; // Invalid gender
+        String email = "sam.doe+" + System.currentTimeMillis() + "@example.com";
+        String status = "active";
+
+        Response response = userApiPage.createNewUser(name, gender, email, status);
+        userApiPage.validateUserCreation(response, 422);  // 422: Unprocessable Entity
+    }
+
+}
